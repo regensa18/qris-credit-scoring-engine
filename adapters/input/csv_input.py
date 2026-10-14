@@ -20,7 +20,7 @@ class CsvInput:
             transactions.append(transaction)
 
         merchant = MerchantProfile(
-            merchant_id=df[0]["merchant_id"],
+            merchant_id=df.iloc[0]["merchant_id"],
             years_operated=0.0,
             location="test"
         )
