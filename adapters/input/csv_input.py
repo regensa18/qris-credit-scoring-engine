@@ -16,6 +16,7 @@ class CsvInput:
                 mcc=str(row.get("mcc", "")),
                 business_type=str(row.get("business_type", "")),
                 merchant_business_scale=str(row.get("merchant_business_scale", "")),
+                rrn=str(row.get("rrn", ""))
             )
             transactions.append(transaction)
 
