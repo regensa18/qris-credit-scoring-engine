@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date
 
 @dataclass
@@ -23,4 +23,16 @@ class ValidationResult:
     passed: bool
     reason: str=""
 
+@dataclass
+class Features:
+    total_transactions: int
+    active_days: int
+    total_days_span: int
+    revenue_cv: float
+    trend_slope_daily: float
+    weekly_pattern_strength: float
+    gap_days_total: int
+    longest_gap_days: int
+    shock_like_drop_detected: bool
+    daily_revenue: dict[str, float] = field(default_factory=dict)
 
