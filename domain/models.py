@@ -34,5 +34,6 @@ class Features:
     gap_days_total: int
     longest_gap_days: int
     shock_like_drop_detected: bool
+    revenue_cv_residual: float
     daily_revenue: dict[str, float] = field(default_factory=dict)
 
