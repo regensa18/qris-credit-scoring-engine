@@ -10,6 +10,27 @@ class StatisticalFeatures:
             return 0.0
         return float(active.std() / active.mean())
 
+    def trend_slope_daily(self, daily: pd.Series) -> float:
+        active = daily[daily > 0]
+        if len(active) < 3 or active.mean() <= 0 :
+            return 0.0
+        x = (active.index - daily.index[0]).days.to_numpy()
+        y = active.to_numpy()
+        slope = np.polyfit(x, y, 1)[0]
+        return float(slope / active.mean())
+
+    def gap_stats(self, daily: pd.Series) -> tuple[int, int]:
+        is_zero = (daily == 0).to_numpy()
+        gap_days_total = int(is_zero.sum())
+
+        longest = 0
+        current = 0
+        for zero in is_zero:
+            current = current + 1 if zero else 0
+            longest = max(longest, current)
+
+        return gap_days_total, longest
+
     def extract(self, transactions: list[Transaction]) -> Features:
         df = pd.DataFrame([{"date": t.transaction_date, "amount": t.amount} for t in transactions])
         daily = df.groupby("date")["amount"].sum().sort_index()
