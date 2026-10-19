@@ -9,3 +9,5 @@ __pycache__/
 settings.json
 .vscode/
 tests/__pycache__/*
+domain/__pycache__/*
+adapters/__pycache__/*

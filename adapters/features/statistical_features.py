@@ -38,15 +38,19 @@ class StatisticalFeatureExtractor:
         x = (active.index - daily.index[0]).days.to_numpy()
         log_y = pd.Series(np.log(active.to_numpy()), index=active.index)
 
-        # 1. remove the trend (a straight line in log space = compounding growth)
         slope, intercept = np.polyfit(x, log_y.to_numpy(), 1)
         detrended = log_y - (slope * x + intercept)
 
-        # 2. remove the weekday effect (subtract each weekday's average)
         detrended = detrended - detrended.groupby(detrended.index.weekday).transform("mean")
 
-        # 3. what remains is the unpredictable swing
         return float(detrended.std())
+
+    def weekly_pattern_strength(self, daily: pd.Series) -> float:
+        if len(daily) < 28 or daily.mean() <= 0:
+            return 0.0
+
+        weekday_means = daily.groupby(daily.index.weekday).mean()
+        return float(weekday_means.std(ddof=0) / weekday_means.mean())
 
     def extract(self, transactions: list[Transaction]) -> Features:
         df = pd.DataFrame([{"date": pd.Timestamp(t.transaction_date), "amount": t.amount} for t in transactions])
@@ -64,6 +68,7 @@ class StatisticalFeatureExtractor:
         gap_total, longest_gap = self.gap_stats(daily)
 
         revenue_cv_residual = self.revenue_cv_residual(daily)
+        weekly_pattern_strength = self.weekly_pattern_strength(daily)
 
         return Features(
             total_transactions=total_transactions,
@@ -73,7 +78,7 @@ class StatisticalFeatureExtractor:
             trend_slope_daily=trend,
             gap_days_total=gap_total,
             longest_gap_days=longest_gap,
-            weekly_pattern_strength=0.0,
+            weekly_pattern_strength=weekly_pattern_strength,
             shock_like_drop_detected=False,
             revenue_cv_residual=revenue_cv_residual,
             daily_revenue={pd.Timestamp(d).strftime("%Y-%m-%d"): float(v) for d, v in daily.items()},

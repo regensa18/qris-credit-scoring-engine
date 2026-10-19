@@ -75,3 +75,13 @@ def test_residual_cv_is_small_for_volatile_merchant():
     full_index = pd.date_range(daily.index.min(), daily.index.max(), freq="D")
     daily = daily.reindex(full_index, fill_value=0.0)
     assert 0.4 < f.revenue_cv_residual(daily) < 0.5
+
+def test_weekly_strength_known_value():
+    daily = _series([100, 100, 100, 100, 100, 200, 200] * 4)
+    assert f.weekly_pattern_strength(daily) == approx(0.3514, abs=1e-3)
+
+def test_weekly_strength_zero_for_flat_series():
+    assert f.weekly_pattern_strength(_series([100] * 14)) == 0.0
+
+def test_weekly_strength_zero_when_series_too_short():
+    assert f.weekly_pattern_strength(_series([100, 200, 300])) == 0.0
