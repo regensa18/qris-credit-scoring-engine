@@ -85,3 +85,22 @@ def test_weekly_strength_zero_for_flat_series():
 
 def test_weekly_strength_zero_when_series_too_short():
     assert f.weekly_pattern_strength(_series([100, 200, 300])) == 0.0
+
+def test_shock_detected_for_dip_and_recover():
+    assert f.shock_like_drop_detected(_series([100] * 30 + [0] * 10 + [100] * 30)) is True
+
+def test_shock_detected_with_partial_recovery():
+    assert f.shock_like_drop_detected(_series([100] * 30 + [0] * 10 + [60] * 30)) is True
+
+def test_no_shock_in_flat_series():
+    assert f.shock_like_drop_detected(_series([100] * 70)) is False
+
+def test_weekly_closure_is_not_a_shock():
+    assert f.shock_like_drop_detected(_series(([100] * 6 + [0]) * 10)) is False
+
+def test_gap_at_end_is_not_a_shock():
+    # no recovery observed
+    assert f.shock_like_drop_detected(_series([100] * 30 + [0] * 10)) is False
+
+def test_bazaar_pattern_is_not_a_shock():
+    assert f.shock_like_drop_detected(_series(([0] * 25 + [100] * 3) * 5)) is False

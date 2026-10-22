@@ -52,6 +52,38 @@ class StatisticalFeatureExtractor:
         weekday_means = daily.groupby(daily.index.weekday).mean()
         return float(weekday_means.std(ddof=0) / weekday_means.mean())
 
+    def shock_like_drop_detected(self, daily: pd.Series, 
+        min_gap_days: int=5, window_days: int=14,  
+        min_active_ratio: float=0.8) -> bool:
+        values = daily.to_numpy()
+        is_zero = values == 0
+        n = len(values)
+
+        i = 0
+        while i < n:
+            if not is_zero[i]:
+                i += 1
+                continue
+
+            start = i
+            while i < n and is_zero[i]:
+                i += 1
+            end = i
+
+            if end - start < min_gap_days:
+                continue
+
+            before = values[max(0, start-window_days):start]
+            after = values[end:end + window_days]
+
+            if len(before) < 7 or len(after) < 7:
+                continue
+
+            if (before > 0).mean() >= min_active_ratio and (after > 0).mean() >= min_active_ratio:
+                return True
+
+        return False
+
     def extract(self, transactions: list[Transaction]) -> Features:
         df = pd.DataFrame([{"date": pd.Timestamp(t.transaction_date), "amount": t.amount} for t in transactions])
         daily = df.groupby("date")["amount"].sum().sort_index()
@@ -70,6 +102,8 @@ class StatisticalFeatureExtractor:
         revenue_cv_residual = self.revenue_cv_residual(daily)
         weekly_pattern_strength = self.weekly_pattern_strength(daily)
 
+        shock_like_drop = self.shock_like_drop_detected(daily)
+
         return Features(
             total_transactions=total_transactions,
             active_days=active_days,
@@ -79,7 +113,7 @@ class StatisticalFeatureExtractor:
             gap_days_total=gap_total,
             longest_gap_days=longest_gap,
             weekly_pattern_strength=weekly_pattern_strength,
-            shock_like_drop_detected=False,
+            shock_like_drop_detected=shock_like_drop,
             revenue_cv_residual=revenue_cv_residual,
             daily_revenue={pd.Timestamp(d).strftime("%Y-%m-%d"): float(v) for d, v in daily.items()},
         )
