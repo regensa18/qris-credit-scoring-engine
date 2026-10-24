@@ -8,6 +8,3 @@ __pycache__/
 .venv/
 settings.json
 .vscode/
-tests/__pycache__/*
-domain/__pycache__/*
-adapters/__pycache__/*

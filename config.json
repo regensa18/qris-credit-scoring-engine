@@ -17,7 +17,8 @@
         "weight_if_passed": 15,
         "weight_if_failed": -15,
         "thresholds": { "max_decline_pct_over_period": 20 },
-        "description": "..."
+        "description": "...",
+        "min_monthly_change": -0.05
     },
     "shock_recovery": {
         "weight_if_passed": 10,

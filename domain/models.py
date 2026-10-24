@@ -42,3 +42,12 @@ class Features:
     gap_days_outside_shocks: int = 0
     longest_gap_outside_shocks: int = 0
 
+@dataclass
+class RuleResult:
+    rule_name: str
+    passed: bool
+    contribution: int
+    explanation: str
+    applicable: bool = True    # False = rule doesn't apply to this merchant (e.g. no shock)
+    max_points: int = 0        # best case for this rule; 0 when not applicable
+
