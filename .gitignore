@@ -1,1 +1,13 @@
 .DS_Store
+venv/
+__pycache__/
+*.pyc
+.DS_Store
+.DS_Store*
+.ipynb_checkpoints
+.venv/
+settings.json
+.vscode/
+tests/__pycache__/*
+domain/__pycache__/*
+adapters/__pycache__/*

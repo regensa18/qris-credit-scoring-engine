@@ -1,0 +1,8 @@
+{
+    "validation": {
+        "minimum_observation_months": 6,
+        "minimum_transactions": 30,
+        "reject_on_duplicate_rrn": true,
+        "reject_on_malformed_schema": true
+    }
+}

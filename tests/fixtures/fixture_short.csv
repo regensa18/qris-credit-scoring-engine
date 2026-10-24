@@ -1,0 +1,6 @@
+merchant_id,date,amount,type,pop_name,rrn,mcc,merchant_business_scale,business_type,archetype,expected_eligible
+SYN-growing-coffee_shop-UME-3,2025-01-01,20367.11,credit,Kedai Kopi ME-3,147960704478,5812,UME,coffee_shop,growing,True
+SYN-growing-coffee_shop-UME-3,2025-01-01,16537.53,credit,Kedai Kopi ME-3,484534335535,5812,UME,coffee_shop,growing,True
+SYN-growing-coffee_shop-UME-3,2025-01-01,43608.5,credit,Kedai Kopi ME-3,200519988039,5812,UME,coffee_shop,growing,True
+SYN-growing-coffee_shop-UME-3,2025-01-01,17755.65,credit,Kedai Kopi ME-3,316006486951,5812,UME,coffee_shop,growing,True
+SYN-growing-coffee_shop-UME-3,2025-01-01,23342.44,credit,Kedai Kopi ME-3,814876938381,5812,UME,coffee_shop,growing,True
