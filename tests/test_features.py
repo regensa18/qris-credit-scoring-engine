@@ -3,9 +3,17 @@ from pytest import approx
 from adapters.features.statistical_features import StatisticalFeatureExtractor
 from adapters.input.csv_input import CsvInput
 
+FULL = "SYN-steady-warung_sembako_18_days_shock"
+PARTIAL = "SYN-steady-coffee_shop_7_day_shock"
+NONE = "SYN-seasonal-fried_chicken_5_days_shock"
+
 def _series(values):
     index = pd.date_range("2025-01-01", periods=len(values), freq="D")
     return pd.Series(values, index=index, dtype= float)
+
+def _load(name):
+    transactions, _ = CsvInput().parse(f"tests/fixtures/{name}.csv")
+    return transactions, StatisticalFeatureExtractor().extract(transactions)
 
 f = StatisticalFeatureExtractor()
 
@@ -104,3 +112,41 @@ def test_gap_at_end_is_not_a_shock():
 
 def test_bazaar_pattern_is_not_a_shock():
     assert f.shock_like_drop_detected(_series(([0] * 25 + [100] * 3) * 5)) is False
+
+def test_fixture_has_no_transactions_during_shock():
+    # checks the fixture itself: the closed days (Apr 10 to Apr 27) are empty
+    transactions, _ = _load(FULL)
+    shocked = set(pd.date_range("2025-04-10", periods=18).date)
+    assert not any(t.transaction_date in shocked for t in transactions)
+
+def test_full_recovery_shock_is_detected():
+    _, f = _load(FULL)
+    assert f.shock_like_drop_detected is True
+
+def test_full_recovery_gap_features():
+    _, f = _load(FULL)
+    assert f.total_days_span == 365
+    assert f.gap_days_total == 18
+    assert f.longest_gap_days == 18
+    assert f.active_days == 347 # 365 - 18
+
+def test_partial_recovery_shock_is_detected():
+    _, f = _load(PARTIAL)
+    assert f.shock_like_drop_detected is True
+
+
+def test_partial_recovery_gap_features():
+    _, f = _load(PARTIAL)
+    assert f.gap_days_total == 7
+    assert f.longest_gap_days == 7
+    assert f.active_days == 358 # 365 - 7
+
+def test_permanent_closure_is_not_visible_as_a_shock():
+    # Known limitation: with recovery="none" the series just ends on Oct 10,
+    # so there is no dip-and-recover shape to find.
+    transactions, f = _load(NONE)
+    assert max(t.transaction_date for t in transactions).isoformat() == "2025-10-10"
+    assert f.total_days_span == 283      # Jan 1 to Oct 10 inclusive
+    assert f.gap_days_total == 0
+    assert f.shock_like_drop_detected is False
+
