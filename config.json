@@ -4,5 +4,25 @@
         "minimum_transactions": 30,
         "reject_on_duplicate_rrn": true,
         "reject_on_malformed_schema": true
+    },
+    "revenue_stability": {
+        "enabled": true,
+        "weight_if_passed": 20,
+        "weight_if_failed": -20,
+        "thresholds": { "max_residual_cv": 0.25 },
+        "description": "..."
+    },
+    "trend_direction": {
+        "enabled": true,
+        "weight_if_passed": 15,
+        "weight_if_failed": -15,
+        "thresholds": { "max_decline_pct_over_period": 20 },
+        "description": "..."
+    },
+    "shock_recovery": {
+        "weight_if_passed": 10,
+        "weight_if_failed": -10,
+        "min_recovery_ratio": 0.8,
+        "max_excusable_shocks": 2
     }
 }

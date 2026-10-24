@@ -150,3 +150,30 @@ def test_permanent_closure_is_not_visible_as_a_shock():
     assert f.gap_days_total == 0
     assert f.shock_like_drop_detected is False
 
+def _shock_series(after_level, extra_zero_days=()):
+    vals = [100.0] * 30 + [0.0] * 6 + [after_level] * 30
+    for i in extra_zero_days:
+        vals[i] = 0.0
+    return pd.Series(vals, index=pd.date_range("2026-01-01", periods=66))
+
+def test_shock_runs_finds_the_closure():
+    assert StatisticalFeatureExtractor().shock_runs(_shock_series(100.0)) == [(30, 36)]
+
+def test_recovery_ratio_full_and_partial():
+    f = StatisticalFeatureExtractor()
+    s_full, s_part = _shock_series(100.0), _shock_series(60.0)
+    assert f.shock_recovery_ratio(s_full, f.shock_runs(s_full)) == approx(1.0)
+    assert f.shock_recovery_ratio(s_part, f.shock_runs(s_part)) == approx(0.6)
+
+def test_no_shock_gives_none():
+    f = StatisticalFeatureExtractor()
+    flat = pd.Series([100.0] * 40, index=pd.date_range("2026-01-01", periods=40))
+    assert f.shock_recovery_ratio(flat, f.shock_runs(flat)) is None
+
+def test_gap_outside_shocks_ignores_the_shock():
+    f = StatisticalFeatureExtractor()
+    s = _shock_series(100.0, extra_zero_days=(10, 11))   # 2-day gap, too short to be a shock
+    runs = f.shock_runs(s)
+    assert f.gap_stats_outside_shocks(s, runs) == (2, 2)
+    assert f.gap_stats(s) == (8, 6) 
+

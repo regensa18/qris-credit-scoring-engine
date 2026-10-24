@@ -36,4 +36,9 @@ class Features:
     shock_like_drop_detected: bool
     revenue_cv_residual: float
     daily_revenue: dict[str, float] = field(default_factory=dict)
+    shock_count: int = 0
+    shock_days_total: int = 0
+    shock_recovery_ratio: float | None = None   # None = no shock
+    gap_days_outside_shocks: int = 0
+    longest_gap_outside_shocks: int = 0
 
