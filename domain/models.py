@@ -36,4 +36,21 @@ class Features:
     shock_like_drop_detected: bool
     revenue_cv_residual: float
     daily_revenue: dict[str, float] = field(default_factory=dict)
+    shock_count: int = 0
+    shock_days_total: int = 0
+    shock_recovery_ratio: float | None = None   # None = no shock
+    gap_days_outside_shocks: int = 0
+    longest_gap_outside_shocks: int = 0
+    unexplained_gap_days: int = 0
+    longest_unexplained_gap: int = 0
+    regular_closed_weekdays: list[int] = field(default_factory=list)
+
+@dataclass
+class RuleResult:
+    rule_name: str
+    passed: bool
+    contribution: int
+    explanation: str
+    applicable: bool = True    # False = rule doesn't apply to this merchant (e.g. no shock)
+    max_points: int = 0        # best case for this rule; 0 when not applicable
 
