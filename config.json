@@ -25,5 +25,11 @@
         "weight_if_failed": -10,
         "min_recovery_ratio": 0.8,
         "max_excusable_shocks": 2
+    },
+    "structural_irregularity_handling": {
+        "weight_if_passed": 15,
+        "weight_if_failed": -15,
+        "max_unexplained_gap_share": 0.10,
+        "max_unexplained_longest_gap_days": 7
     }
 }

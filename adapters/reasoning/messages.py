@@ -30,3 +30,15 @@ def shock_recovery_failed(shock_count, max_shocks, ratio, min_ratio, too_many, l
         parts.append(f"penjualan setelah penutupan hanya sekitar {ratio:.0%} dari level sebelumnya "
                      f"(minimum {min_ratio:.0%})")
     return "Pemulihan usaha kurang memadai: " + "; ".join(parts) + "."
+
+def irregularity_passed(share, limit, longest, max_longest) -> str:
+    return (f"Kontinuitas usaha baik: hari tanpa penjualan yang tidak terjelaskan {share:.0%} "
+            f"(batas {limit:.0%}), jeda terpanjang {longest} hari (batas {max_longest} hari).")
+
+def irregularity_failed(share, limit, longest, max_longest, share_bad, longest_bad) -> str:
+    parts = []
+    if share_bad:
+        parts.append(f"hari tanpa penjualan yang tidak terjelaskan {share:.0%}, melebihi batas {limit:.0%}")
+    if longest_bad:
+        parts.append(f"jeda tanpa penjualan terpanjang {longest} hari, melebihi batas {max_longest} hari")
+    return "Kontinuitas usaha kurang memadai: " + "; ".join(parts) + "."

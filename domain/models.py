@@ -41,6 +41,9 @@ class Features:
     shock_recovery_ratio: float | None = None   # None = no shock
     gap_days_outside_shocks: int = 0
     longest_gap_outside_shocks: int = 0
+    unexplained_gap_days: int = 0
+    longest_unexplained_gap: int = 0
+    regular_closed_weekdays: list[int] = field(default_factory=list)
 
 @dataclass
 class RuleResult:

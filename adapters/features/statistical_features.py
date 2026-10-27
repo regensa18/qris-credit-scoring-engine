@@ -169,6 +169,27 @@ class StatisticalFeatureExtractor:
             longest = max(longest, current)
         return total, longest
 
+    def gap_stats_unexplained(self, daily, runs, min_weeks=8, closed_ratio=0.9):
+        """Zero days not explained by a recognised shock or a regular weekly closure.
+        Returns (total, longest, regular_closed_weekdays); weekday 0 = Monday."""
+        zero = daily.to_numpy() == 0
+        in_shock = np.zeros(len(zero), dtype=bool)
+        for start, end in runs:
+            in_shock[start:end] = True
+        weekday = np.asarray(daily.index.weekday)
+        closed = []
+        for d in range(7):
+            mask = (weekday == d) & ~in_shock
+            if mask.sum() >= min_weeks and zero[mask].mean() >= closed_ratio:
+                closed.append(d)
+        gap = zero & ~(in_shock | np.isin(weekday, closed))
+        total = int(gap.sum())
+        longest = current = 0
+        for g in gap:
+            current = current + 1 if g else 0
+            longest = max(longest, current)
+        return total, longest, closed
+
     def extract(self, transactions: list[Transaction]) -> Features:
         df = pd.DataFrame([{"date": pd.Timestamp(t.transaction_date), "amount": t.amount} for t in transactions])
         daily = df.groupby("date")["amount"].sum().sort_index()
@@ -190,6 +211,7 @@ class StatisticalFeatureExtractor:
         weekly_pattern_strength = self.weekly_pattern_strength(daily)
 
         gaps_out_total, gaps_out_longest = self.gap_stats_outside_shocks(daily, runs)
+        unexp_total, unexp_longest, closed_days = self.gap_stats_unexplained(daily, runs)
 
         return Features(
             total_transactions=total_transactions,
@@ -208,4 +230,7 @@ class StatisticalFeatureExtractor:
             shock_recovery_ratio=self.shock_recovery_ratio(daily, runs),
             gap_days_outside_shocks=gaps_out_total,
             longest_gap_outside_shocks=gaps_out_longest,
+            unexplained_gap_days=unexp_total,
+            longest_unexplained_gap=unexp_longest,
+            regular_closed_weekdays=closed_days
         )

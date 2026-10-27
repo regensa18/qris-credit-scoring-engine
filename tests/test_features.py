@@ -177,3 +177,13 @@ def test_gap_outside_shocks_ignores_the_shock():
     assert f.gap_stats_outside_shocks(s, runs) == (2, 2)
     assert f.gap_stats(s) == (8, 6) 
 
+def test_weekly_closure_is_explained_but_random_gap_is_not():
+    vals = [100.0] * 84                                  # 12 weeks starting on a Monday
+    for i in range(6, 84, 7):                            # every Sunday closed
+        vals[i] = 0.0
+    vals[9] = vals[10] = 0.0                             # a 2-day gap on a Wed and Thu
+    s = pd.Series(vals, index=pd.date_range("2026-01-05", periods=84))
+    f = StatisticalFeatureExtractor()
+    total, longest, closed = f.gap_stats_unexplained(s, f.shock_runs(s))
+    assert (total, longest, closed) == (2, 2, [6])
+
