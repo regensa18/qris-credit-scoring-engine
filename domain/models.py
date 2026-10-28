@@ -54,3 +54,9 @@ class RuleResult:
     applicable: bool = True    # False = rule doesn't apply to this merchant (e.g. no shock)
     max_points: int = 0        # best case for this rule; 0 when not applicable
 
+@dataclass
+class ScoreResult:
+    merchant_id: str
+    score: int
+    decision: str
+    rule_results: list[RuleResult] = field(default_factory=list)
