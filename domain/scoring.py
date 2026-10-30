@@ -7,10 +7,16 @@ def compute_score(results, scale_max: int = 100) -> int:
     score = round(scale_max * (total + best) / (2 * best))
     return max(0, min(scale_max, score))
 
-def decide(score: int, eligible_threshold: int, review_threshold: int) -> str:
+def decide(score: int, eligible_threshold: int, review_threshold: int, results=()) -> str:
     if score >= eligible_threshold:
-        return "eligible"
-    if score >= review_threshold:
-        return "manual_review"
-    return "not_eligible"
+        decision = "eligible"
+    elif score >= review_threshold:
+        decision = "manual_review"
+    else:
+        decision = "not_eligible"
+
+    
+    if decision == "eligible" and any(r.applicable and r.blocks_approval for r in results):
+        decision = "manual_review"
+    return decision
 

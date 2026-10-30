@@ -1,11 +1,11 @@
 from domain.models import Features, MerchantProfile, RuleResult
 from adapters.reasoning.rules import (
-    revenue_stability, trend_direction, structural_irregularity, shock_recovery,
+    revenue_stability, trend_direction, structural_irregularity, shock_recovery, recent_activity
 )
 
 REGISTRY = {
     module.RULE_NAME: module.evaluate
-    for module in (revenue_stability, trend_direction, structural_irregularity, shock_recovery)
+    for module in (revenue_stability, trend_direction, structural_irregularity, shock_recovery, recent_activity)
 }
 
 class RuleBasedEngine:

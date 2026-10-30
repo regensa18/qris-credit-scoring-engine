@@ -1,7 +1,7 @@
 from dataclasses import replace
 
 from domain.models import Features
-from adapters.reasoning.rules import revenue_stability, trend_direction, shock_recovery, structural_irregularity
+from adapters.reasoning.rules import revenue_stability, trend_direction, shock_recovery, structural_irregularity, recent_activity
 
 PARAMS = {"weight_if_passed": 20, "weight_if_failed": -20, "max_residual_cv": 0.30}
 TREND_PARAMS = {"weight_if_passed": 15, "weight_if_failed": -15, "min_monthly_change": -0.05}
@@ -9,6 +9,7 @@ SHOCK_PARAMS = {"weight_if_passed": 10, "weight_if_failed": -10,
                 "min_recovery_ratio": 0.8, "max_excusable_shocks": 2}
 IRR_PARAMS = {"weight_if_passed": 15, "weight_if_failed": -15,
               "max_unexplained_gap_share": 0.10, "max_unexplained_longest_gap_days": 7}
+RECENT = {"max_days_without_sales": 14}
 
 def _features(**overrides):
     base = Features(
@@ -93,3 +94,11 @@ def test_both_reasons_penalised_once():
     r = structural_irregularity.evaluate(
         _features(total_days_span=180, unexplained_gap_days=60, longest_unexplained_gap=12), IRR_PARAMS)
     assert r.contribution == -15
+
+def test_recent_activity_ok():
+    r = recent_activity.evaluate(_features(days_since_last_transaction=3), RECENT)
+    assert r.passed and not r.blocks_approval
+
+def test_long_silence_blocks_approval():
+    r = recent_activity.evaluate(_features(days_since_last_transaction=60), RECENT)
+    assert not r.passed and r.blocks_approval and r.contribution == 0 and "60 hari" in r.explanation

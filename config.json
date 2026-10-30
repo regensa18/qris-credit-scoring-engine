@@ -27,6 +27,9 @@
             "weight_if_failed": -15,
             "max_unexplained_gap_share": 0.10,
             "max_unexplained_longest_gap_days": 7
+        },
+        "recent_activity": {
+            "max_days_without_sales": 14
         }
     },
     "scoring": {

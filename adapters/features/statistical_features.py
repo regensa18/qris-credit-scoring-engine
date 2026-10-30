@@ -190,7 +190,7 @@ class StatisticalFeatureExtractor:
             longest = max(longest, current)
         return total, longest, closed
 
-    def extract(self, transactions: list[Transaction]) -> Features:
+    def extract(self, transactions: list[Transaction], as_of=None) -> Features:
         df = pd.DataFrame([{"date": pd.Timestamp(t.transaction_date), "amount": t.amount} for t in transactions])
         daily = df.groupby("date")["amount"].sum().sort_index()
 
@@ -213,6 +213,9 @@ class StatisticalFeatureExtractor:
         gaps_out_total, gaps_out_longest = self.gap_stats_outside_shocks(daily, runs)
         unexp_total, unexp_longest, closed_days = self.gap_stats_unexplained(daily, runs)
 
+        last_date = max(t.transaction_date for t in transactions)
+        days_since_last = max(0, ((as_of or last_date) - last_date).days)
+
         return Features(
             total_transactions=total_transactions,
             active_days=active_days,
@@ -232,5 +235,6 @@ class StatisticalFeatureExtractor:
             longest_gap_outside_shocks=gaps_out_longest,
             unexplained_gap_days=unexp_total,
             longest_unexplained_gap=unexp_longest,
-            regular_closed_weekdays=closed_days
+            regular_closed_weekdays=closed_days,
+            days_since_last_transaction=days_since_last
         )

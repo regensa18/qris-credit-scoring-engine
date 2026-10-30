@@ -12,6 +12,9 @@ class JsonOutput:
             "engine": ENGINE_NAME,
             "score": result.score,
             "decision": result.decision,
+            "approval_blocked_by": [
+                r.rule_name for r in result.rule_results if r.blocks_approval and not r.passed
+            ],
             "explanations": [
                 {
                     "rule": r.rule_name,

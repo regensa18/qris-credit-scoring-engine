@@ -1,5 +1,6 @@
 from typing import Protocol
 from domain.models import Transaction, MerchantProfile, ValidationResult, Features, RuleResult
+from datetime import date
 
 class InputPort(Protocol):
     def parse(self, source: str) -> tuple[list[Transaction], MerchantProfile]:
@@ -11,7 +12,7 @@ class ValidationPort(Protocol):
         ...
 
 class FeatureExtractionPort(Protocol):
-    def extract(self, transactions: list[Transaction]) -> Features:
+    def extract(self, transactions: list[Transaction], as_of: date | None = None) -> Features:
         ...
 
 class ReasoningPort(Protocol):

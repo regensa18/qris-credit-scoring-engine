@@ -1,4 +1,4 @@
-import sys
+import argparse, datetime, sys
 from config.loader import load_config
 from adapters.input.csv_input import CsvInput
 from adapters.validation.basic_validator import BasicValidator      # your class name
@@ -19,10 +19,12 @@ def build_pipeline(config_path="config.json") -> dict:
     )
 
 def main() -> None:
-    if len(sys.argv) != 2:
-        print("Usage: python main.py <path-to-merchant-csv>")
-        sys.exit(1)
-    print(assess_merchant(sys.argv[1], **build_pipeline()))
+    p = argparse.ArgumentParser()
+    p.add_argument("path")
+    p.add_argument("--as-of", type=datetime.date.fromisoformat, default=None,
+                   help="Assessment date YYYY-MM-DD (default: today)")
+    args = p.parse_args()
+    print(assess_merchant(args.path, as_of=args.as_of or datetime.date.today(), **build_pipeline()))
 
 if __name__ == "__main__":
     main()
