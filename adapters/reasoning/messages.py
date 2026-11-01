@@ -42,3 +42,9 @@ def irregularity_failed(share, limit, longest, max_longest, share_bad, longest_b
     if longest_bad:
         parts.append(f"jeda tanpa penjualan terpanjang {longest} hari, melebihi batas {max_longest} hari")
     return "Kontinuitas usaha kurang memadai: " + "; ".join(parts) + "."
+
+def recent_activity(passed: bool, days: int, limit: int) -> str:
+    if passed:
+        return f"Usaha masih aktif: transaksi terakhir {days} hari yang lalu (batas {limit} hari)."
+    return (f"Tidak ada transaksi selama {days} hari terakhir (batas {limit} hari); "
+            f"persetujuan otomatis ditahan dan memerlukan tinjauan manual.")

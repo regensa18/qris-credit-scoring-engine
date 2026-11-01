@@ -44,6 +44,7 @@ class Features:
     unexplained_gap_days: int = 0
     longest_unexplained_gap: int = 0
     regular_closed_weekdays: list[int] = field(default_factory=list)
+    days_since_last_transaction: int = 0
 
 @dataclass
 class RuleResult:
@@ -53,4 +54,11 @@ class RuleResult:
     explanation: str
     applicable: bool = True    # False = rule doesn't apply to this merchant (e.g. no shock)
     max_points: int = 0        # best case for this rule; 0 when not applicable
+    blocks_approval: bool = False
 
+@dataclass
+class ScoreResult:
+    merchant_id: str
+    score: int
+    decision: str
+    rule_results: list[RuleResult] = field(default_factory=list)

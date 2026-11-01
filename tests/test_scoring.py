@@ -10,6 +10,10 @@ def _r(passed, weight, applicable=True):
         max_points=weight if applicable else 0,
     )
 
+def _blocker():
+    return RuleResult(rule_name="recent_activity", passed=False, contribution=0,
+                      explanation="", applicable=True, max_points=0, blocks_approval=True)
+
 def test_all_pass_is_100():
     assert compute_score([_r(True, 20), _r(True, 15), _r(True, 15), _r(True, 10)]) == 100
 
@@ -33,3 +37,14 @@ def test_decision_boundaries():
     assert decide(79, 80, 50) == "manual_review"
     assert decide(50, 80, 50) == "manual_review"
     assert decide(49, 80, 50) == "not_eligible"
+
+def test_blocker_caps_eligible_at_manual_review():
+    b = _blocker()
+    print("applicable:", b.applicable, "blocks_approval:", b.blocks_approval)
+    assert decide(100, 80, 50, [_blocker()]) == "manual_review"
+
+def test_blocker_does_not_lift_a_low_decision():
+    assert decide(40, 80, 50, [_blocker()]) == "not_eligible"
+
+def test_unblocked_still_eligible():
+    assert decide(100, 80, 50, []) == "eligible"

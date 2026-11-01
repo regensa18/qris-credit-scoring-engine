@@ -1,30 +1,30 @@
-import sys
-import json
-
-from domain.pipeline import ScoringPipeline
+import argparse, datetime, sys
+from config.loader import load_config
 from adapters.input.csv_input import CsvInput
-from adapters.validation.basic_validator import BasicValidator
+from adapters.validation.basic_validator import BasicValidator      # your class name
 from adapters.features.statistical_features import StatisticalFeatureExtractor
 from adapters.reasoning.rule_based_engine import RuleBasedEngine
 from adapters.output.json_output import JsonOutput
-from config.loader import load_config
+from domain.assess import assess_merchant
 
-def build_pipeline(config_path: str = "config.json") -> ScoringPipeline:
+def build_pipeline(config_path="config.json") -> dict:
     config = load_config(config_path)
-    return ScoringPipeline(
-        input_adapter=CsvInput(),
+    return dict(
+        input_port=CsvInput(),
         validator=BasicValidator(config),
-        feature_extractor=StatisticalFeatureExtractor(),
-        reasoning_engine=RuleBasedEngine(config),
-        output_adapter=JsonOutput(config),
+        extractor=StatisticalFeatureExtractor(),
+        engine=RuleBasedEngine(config["rules"]),
+        output=JsonOutput(),
+        scoring_cfg=config["scoring"],
     )
 
+def main() -> None:
+    p = argparse.ArgumentParser()
+    p.add_argument("path")
+    p.add_argument("--as-of", type=datetime.date.fromisoformat, default=None,
+                   help="Assessment date YYYY-MM-DD (default: today)")
+    args = p.parse_args()
+    print(assess_merchant(args.path, as_of=args.as_of or datetime.date.today(), **build_pipeline()))
+
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Usage: python main.py <path-to-merchant-csv>")
-        sys.exit(1)
-
-    pipeline = build_pipeline()
-    result = pipeline.run(sys.argv[1])
-    print(json.dumps(result, indent=2, ensure_ascii=False))
-
+    main()
